@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluently — Product details</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap');
+:root{
+  --ink:#0a0a0a; --paper:#faf9f6; --paper-dim:#f1efe9;
+  --line:#d9d6cd; --grey:#726f68; --grey-soft:#a7a49c;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;}
+h1{font-family:var(--serif);font-weight:400;line-height:1.1;margin:0 0 6px;letter-spacing:-0.01em;}
+a{color:inherit;text-decoration:none;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:26px 24px;border-bottom:1px solid var(--line);}
+.nav .mark{font-family:var(--serif);font-size:20px;}
+.nav .links{display:flex;gap:22px;}
+.nav .links a{font-size:12.5px;color:var(--grey);letter-spacing:.02em;position:relative;padding-bottom:3px;}
+.nav .links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--ink);transition:width .3s ease;}
+.nav .links a:hover::after{width:100%;}
+.nav .links a:hover{color:var(--ink);}
+.shell{max-width:520px;margin:0 auto;padding:8px 24px 80px;}
+.frame{aspect-ratio:4/5;background:var(--paper-dim);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:28px;}
+.frame img{width:100%;height:100%;object-fit:cover;}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;border:1px solid var(--ink);padding:6px 12px;border-radius:999px;margin-bottom:20px;}
+.brand{color:var(--grey);font-size:15px;display:block;margin-bottom:22px;}
+.desc{font-size:15px;color:var(--grey);line-height:1.7;margin-bottom:28px;}
+.spec-list{border-top:1px solid var(--line);}
+.spec-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;}
+.spec-row .label{color:var(--grey-soft);}
+.spec-row .value.mono{font-family:monospace;letter-spacing:.03em;}
+.barcode{margin-top:30px;}
+.barcode svg{width:100%;height:50px;display:block;}
+.barcode-caption{font-size:12px;color:var(--grey-soft);margin-top:8px;letter-spacing:.04em;}
+.not-found{padding:60px 0;}
+.not-found p{color:var(--grey);}
+.enter{opacity:0;transform:translateY(14px);animation:enter .8s cubic-bezier(.2,.7,.3,1) forwards;}
+@keyframes enter{to{opacity:1;transform:translateY(0);}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="mark">fluently</a>
+  <div class="links">
+    <a href="index.html">Collection</a>
+    <a href="#">Verify</a>
+  </div>
+</nav>
+
+<main class="shell" id="content"></main>
+
+<script>
+/* ===========================================================
+   Daftar produk ada di sini. Untuk menambah produk baru:
+   1. Buka admin.html, isi form, salin kode array yang muncul.
+   2. Edit file ini di GitHub (tombol pensil di halaman file),
+      tempel kode itu menggantikan array PRODUCTS di bawah.
+   3. Commit changes.
+   =========================================================== */
+const PRODUCTS = [
+  {
+    serialNumber: "FL-240501-A1",
+    name: "Ansel Bangle",
+    brand: "Studio Ansel",
+    material: "925 Sterling Silver",
+    authenticity: "Verified authentic",
+    description: "Hand-finished in a single continuous pour, each bangle carries a unique serial etched on the inner band. This piece was cast and polished in a limited run of 120.",
+    image: "",
+    dateAdded: "2026-05-01"
+  }
+];
+
+function renderBarcode(serial){
+  const chars = serial.split('');
+  let x = 0;
+  const bars = chars.map((c,i)=>{
+    const code = c.charCodeAt(0);
+    const width = 2 + (code % 4);
+    const bar = `<rect x="${x}" y="0" width="${width}" height="50" fill="#0a0a0a"></rect>`;
+    x += width + 3 + (i % 3);
+    return bar;
+  }).join('');
+  return `<svg viewBox="0 0 ${x} 50" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">${bars}</svg>`;
+}
+
+const params = new URLSearchParams(window.location.search);
+const serial = params.get('sn');
+const product = PRODUCTS.find(p => p.serialNumber.toLowerCase() === (serial||'').toLowerCase());
+const content = document.getElementById('content');
+
+if(!product){
+  content.innerHTML = `
+    <div class="not-found">
+      <h1>Item not found</h1>
+      <p>Tidak ada produk yang cocok dengan kode ini. Pastikan kode dipindai dengan benar.</p>
+    </div>`;
+}else{
+  content.innerHTML = `
+    <div class="frame enter">
+      ${product.image
+        ? `<img src="${product.image}" alt="${product.name}">`
+        : `<svg viewBox="0 0 200 200" width="45%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+             <circle cx="100" cy="100" r="70" fill="none" stroke="#a7a49c" stroke-width="1"/>
+             <circle cx="100" cy="100" r="52" fill="none" stroke="#a7a49c" stroke-width="1"/>
+           </svg>`}
+    </div>
+    <div class="enter" style="animation-delay:.1s">
+      <span class="badge">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8.5L6.5 12L13 4.5" stroke="#0a0a0a" stroke-width="1.4"/></svg>
+        ${product.authenticity}
+      </span>
+      <h1>${product.name}</h1>
+      <span class="brand">${product.brand}</span>
+      <div class="desc">${product.description}</div>
+      <div class="spec-list">
+        <div class="spec-row"><span class="label">Serial number</span><span class="value mono">${product.serialNumber}</span></div>
+        <div class="spec-row"><span class="label">Material</span><span class="value">${product.material}</span></div>
+        <div class="spec-row"><span class="label">Registered</span><span class="value">${product.dateAdded}</span></div>
+      </div>
+      <div class="barcode">
+        ${renderBarcode(product.serialNumber)}
+        <div class="barcode-caption">${product.serialNumber}</div>
+      </div>
+    </div>`;
+}
+</script>
+
+</body>
+</html>
